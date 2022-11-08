@@ -1,0 +1,22 @@
+#!/bin/bash
+fin=$(cat "/var/log/borg_last_success")
+# Set Date
+now_timestamp=`date +"%s"`
+# Def. when Warning or Critical in this Case older 24 Hours is Warning and older 48 Hours is Critial in Checkmk
+warn=$(expr 24 \* 3600)
+crit=$(expr 48 \* 3600)
+# Compare timestamps
+warning=$(expr $fin + $warn)
+critical=$(expr $fin + $crit)
+# Compare current timestamp with compare timestamp
+if [ $warning -gt $now_timestamp ]
+then
+	echo "0 "Borg-Backup" - Borg Backup is OK"
+	exit 0
+elif [ $critical -gt $now_timestamp ]
+then
+        echo "1 "Borg-Backup" - Borg Backup is to old - Last Backup" `date -d @$fin`
+        exit 0
+else
+echo "2 "Borg-Backup" - Borg Backup is to old - Last Backup" `date -d @$fin`
+fi
